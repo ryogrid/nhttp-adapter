@@ -1,3 +1,7 @@
+little bit modifed for [NostrP2P](https://github.com/ryogrid/nostrp2p)
+
+---
+
 ## nhttp-adapter
 An adapter for NoH relay server to nostr websocket relay.
 
