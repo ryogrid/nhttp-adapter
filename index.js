@@ -47,6 +47,7 @@ wss.on('connection', ws => {
   ws.on('message', async data => {
     try {
       data = JSON.parse(data);
+      console.log("Received Object", data)
     } catch {
       return s(ws, ["NOTICE", "error: bad JSON"]);
     }
@@ -75,9 +76,14 @@ wss.on('connection', ws => {
         for (i of config.nhttp_urls) {
           if (!openSub.has(data[1])) break;
           try {
-            const body = await got(i + "/req", {
-              searchParams: data[2]
+            // const body = await got(i + "/req", {
+            //   searchParams: data[2]
+            // }).json();
+            const body = await got.post(i + "/req", {
+              json: data[2]
             }).json();
+
+            console.log("Response:", body)
 
             if (body.notice) s(ws, ["NOTICE", body.notice]);
 
@@ -89,6 +95,7 @@ wss.on('connection', ws => {
 
         for (i of events) {
           if (!openSub.has(data[1])) break;
+          //console.log(i);
           s(ws, i);
         }
 
