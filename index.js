@@ -1,6 +1,7 @@
 const config = require("./config");
 const cluster = require("cluster");
 const os = require("os");
+const fs = require('fs');
 
 if (!process.env.NO_CLUSTERS && cluster.isPrimary) {
   const numClusters = process.env.CLUSTERS || config.clusters || (os.availableParallelism ? os.availableParallelism() : (os.cpus().length || 2))
@@ -23,17 +24,26 @@ if (!process.env.NO_CLUSTERS && cluster.isPrimary) {
 const WebSocket = require("ws");
 let got = import("got").then(_ => got = _.got);
 const http = require("http");
+const https = require('https');
 var server;
-if (fs.existsSync("./cert.pem") && fs.existsSync("./privkey.pem")) {
+var wss;
+if (fs.existsSync("./fullchain.pem") && fs.existsSync("./privkey.pem")) {
   server = https.createServer({
-    cert: fs.readFileSync('./cert.pem'),
+    cert: fs.readFileSync('./fullchain.pem'),
     key: fs.readFileSync('./privkey.pem'),
   });
+  wss = new WebSocket.WebSocketServer({ noServer: true });
+
+  server.on('upgrade', (request, socket, head) => {
+     wss.handleUpgrade(request, socket, head, (ws) => {
+         wss.emit('connection', ws, request);
+     });
+  });
 }else{
-  server = http.createServer();
+    server = http.createServer();
+    wss = new WebSocket.WebSocketServer({ server });
 }
 
-const wss = new WebSocket.WebSocketServer({ server });
 
 server.on('request', (req, res) => {
   return res.writeHead(200, {
@@ -93,13 +103,13 @@ wss.on('connection', ws => {
               json: data[2]
             }).json();
 
-            //console.log("Response:", body)
+            console.log("Response:", body)
 
             if (body.notice) s(ws, ["NOTICE", body.notice]);
 
             events = [...events, ...body.results?.map(i => ["EVENT", data[1], i])];
           } catch (e) {
-            //console.error(e)
+            console.error(e)
           }
         }
 

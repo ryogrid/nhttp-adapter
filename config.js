@@ -1,10 +1,10 @@
 module.exports = {
   nhttp_urls: [
-    "http://localhost:20001",
+    "http://localhost:8889",
     // "https://example2.com/anotherEndpoint",
     // ....
   ],
-  port: 4000,
+  port: 9000,
   clusters: 1,
 
   server_meta: {
