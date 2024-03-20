@@ -23,7 +23,16 @@ if (!process.env.NO_CLUSTERS && cluster.isPrimary) {
 const WebSocket = require("ws");
 let got = import("got").then(_ => got = _.got);
 const http = require("http");
-const server = http.createServer();
+var server;
+if (fs.existsSync("./cert.pem") && fs.existsSync("./privkey.pem")) {
+  server = https.createServer({
+    cert: fs.readFileSync('./cert.pem'),
+    key: fs.readFileSync('./privkey.pem'),
+  });
+}else{
+  server = http.createServer();
+}
+
 const wss = new WebSocket.WebSocketServer({ server });
 
 server.on('request', (req, res) => {
@@ -47,7 +56,7 @@ wss.on('connection', ws => {
   ws.on('message', async data => {
     try {
       data = JSON.parse(data);
-      console.log("Received Object", data)
+      //console.log("Received Object", data)
     } catch {
       return s(ws, ["NOTICE", "error: bad JSON"]);
     }
@@ -84,13 +93,13 @@ wss.on('connection', ws => {
               json: data[2]
             }).json();
 
-            console.log("Response:", body)
+            //console.log("Response:", body)
 
             if (body.notice) s(ws, ["NOTICE", body.notice]);
 
             events = [...events, ...body.results?.map(i => ["EVENT", data[1], i])];
           } catch (e) {
-            console.error(e)
+            //console.error(e)
           }
         }
 
