@@ -62,16 +62,17 @@ wss.on('connection', ws => {
           }).catch(console.error);
         }
         s(ws, ["OK", data[1], true, ""]);
+        ws.close();
         break;
       case "REQ": {
         if ((typeof data[1] !== "string") || (typeof data[2] !== "object")) return s(ws, ["CLOSED", data[1], "invalid: invalid request"]);
         openSub.add(data[1]);
         let events = [];
 
-        for (i in data[2]) {
-          if (!Array.isArray(data[2][i])) continue;
-          data[2][i] = data[2][i].join(",");
-        }
+        // for (i in data[2]) {
+        //   if (!Array.isArray(data[2][i])) continue;
+        //   data[2][i] = data[2][i].join(",");
+        // }
 
         for (i of config.nhttp_urls) {
           if (!openSub.has(data[1])) break;
