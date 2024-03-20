@@ -1,10 +1,10 @@
 module.exports = {
   nhttp_urls: [
-    "http://localhost:8889",
+    "https://ryogrid.net:8889",
     // "https://example2.com/anotherEndpoint",
     // ....
   ],
-  port: 9000,
+  port: 4000,
   clusters: 1,
 
   server_meta: {
